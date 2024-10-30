@@ -22,7 +22,7 @@ spring:
           uri: lb://Finance
           predicates:
             - Path=/finance/**
-        - id: CEO-service
+        - id: User-service
           uri: lb://User
           predicates:
             - Path=/user/**
