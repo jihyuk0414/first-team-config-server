@@ -23,9 +23,9 @@ spring:
           predicates:
             - Path=/finance/**
         - id: CEO-service
-          uri: lb://CEO
+          uri: lb://User
           predicates:
-            - Path=/ceo/**
+            - Path=/user/**
         - id: Employee-service
           uri: lb://Employee
           predicates:
