@@ -15,29 +15,26 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/attendance
     username: root
-    password: 1234 #코딩하는 사람 맞춰서 db 아이디 , 변경, 위 url의 db명 변경하여 사용하기~
+    password: 1234 # 코딩하는 사람 맞춰서 DB 아이디 및 비밀번호 변경
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  kafka:
-    bootstrap-servers: kafka:9092 
-    consumer:
-      group-id: attendance-cdc-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      properties:
-        session.timeout.ms: 45000
-        heartbeat.interval.ms: 15000
-        max.poll.interval.ms: 300000
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+# Debezium 설정
+debezium:
+  source:
+    db:
+      name: source_db
+      host: localhost
+      port: 3306
+      username: root
+      password: 1234
+      database: member 
+      table: ceo 
+  target:
+    db:
+      name: target_db
+      host: localhost
+      port: 3306
+      username: root
+      password: 1234
+      database: attendance 
+      table: ceo 
