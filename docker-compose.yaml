@@ -26,22 +26,23 @@ services:
     networks:
       - kafka-network
 
-  connect:
-    image: debezium/connect:1.9
-    container_name: debezium
-    ports:
-      - "8083:8083"
-    environment:
-      GROUP_ID: 1
-      CONFIG_STORAGE_TOPIC: "docker.connect.config"
-      OFFSET_STORAGE_TOPIC: "docker.connect.offsets"
-      BOOTSTRAP_SERVERS: kafka:9092
-      KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-    depends_on:
-      - kafka
-    networks:
-      - kafka-network
+connect:
+  image: debezium/connect:1.9
+  container_name: debezium
+  ports:
+    - "8083:8083"
+  environment:
+    GROUP_ID: 1
+    CONFIG_STORAGE_TOPIC: "docker.connect.config"
+    OFFSET_STORAGE_TOPIC: "docker.connect.offsets"
+    BOOTSTRAP_SERVERS: kafka:9092
+    KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+    VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+    DATABASE_URL: "jdbc:mysql://mysql:3306/your_database?allowPublicKeyRetrieval=true&useSSL=false"
+  depends_on:
+    - kafka
+  networks:
+    - kafka-network
 
 networks:
   kafka-network:
