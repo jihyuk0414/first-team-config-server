@@ -17,6 +17,12 @@ spring:
     username: root
     password: 1234 # 코딩하는 사람 맞춰서 DB 아이디 및 비밀번호 변경
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+   show-sql: true
+   properties:
+     hibernate:
+       format_sql: true
+       show_sql: true
 
 # Debezium 설정
 debezium:
