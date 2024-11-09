@@ -57,6 +57,8 @@ services:
       dockerfile: Dockerfile
     environment:
       PYTHONUNBUFFERED: 1
+    volumes:
+      - ./sync_script.py:/app/sync_script.py 
     depends_on:
       kafka:
         condition: service_healthy

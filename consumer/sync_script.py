@@ -17,7 +17,7 @@ def connect_to_database():
        connection = mysql.connector.connect(
            host="host.docker.internal",
            port=3306,
-           database="attendance",
+           database="attendance",  # 여기를 attendance로 변경
            user="root",
            password="1234"
        )
@@ -26,6 +26,7 @@ def connect_to_database():
    except Error as e:
        logger.error(f"Error connecting to database: {e}")
        return None
+
 
 def handle_message(msg_value):
    if not msg_value:
@@ -45,23 +46,22 @@ def handle_president_changes(cursor, operation, data):
         values = None
 
         if operation == 'c':  # Insert
-            sql = """INSERT INTO president_sub 
-                    (president_id, name, email, account_number) 
-                    VALUES (%s, %s, %s, %s)"""
+            sql = """INSERT INTO president 
+                    (president_id, name, email) 
+                    VALUES (%s, %s, %s)"""
             values = (data['after']['president_id'],
                      data['after']['name'], 
-                     data['after']['email'],
-                     data['after']['account_number'])
+                     data['after']['email'])
         elif operation == 'u':  # Update
-            sql = """UPDATE president_sub 
-                    SET email = %s, 
-                        account_number = %s 
+            sql = """UPDATE president 
+                    SET name = %s,
+                        email = %s
                     WHERE president_id = %s"""
-            values = (data['after']['email'],
-                     data['after']['account_number'],
+            values = (data['after']['name'],
+                     data['after']['email'],
                      data['after']['president_id'])
         elif operation == 'd':  # Delete
-            sql = """DELETE FROM president_sub WHERE president_id = %s"""
+            sql = """DELETE FROM president WHERE president_id = %s"""
             values = (data['before']['president_id'],)
         
         if sql and values:
@@ -76,60 +76,101 @@ def handle_president_changes(cursor, operation, data):
         logger.error(f"Error handling President change: {e}")
         return False
 
-def handle_employee_changes(cursor, operation, data):
+def handle_store_changes(cursor, operation, data):
     try:
         sql = None
         values = None
 
         if operation == 'c':  # Insert
-            sql = """INSERT INTO employee_sub 
-                    (employee_id, name, employment_type, phone_number, payment_date, salary, 
-                     account_number, bank_code, email, president_id) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            values = (data['after']['employee_id'],
-                     data['after']['name'],
-                     data['after']['employment_type'],
-                     data['after']['phone_number'],
-                     data['after']['payment_date'],
-                     data['after']['salary'],
+            sql = """INSERT INTO store 
+                    (store_id, store_name, account_number, bank_code, president_id) 
+                    VALUES (%s, %s, %s, %s, %s)"""
+            values = (data['after']['store_id'],
+                     data['after']['store_name'],
                      data['after']['account_number'],
                      data['after']['bank_code'],
-                     data['after']['email'],
                      data['after']['president_id'])
         elif operation == 'u':  # Update
-            sql = """UPDATE employee_sub 
-                    SET employment_type = %s,
-                        phone_number = %s,
-                        payment_date = %s,
-                        salary = %s,
+            sql = """UPDATE store 
+                    SET store_name = %s,
                         account_number = %s,
                         bank_code = %s,
-                        email = %s,
                         president_id = %s
-                    WHERE employee_id = %s"""
-            values = (data['after']['employment_type'],
-                     data['after']['phone_number'],
-                     data['after']['payment_date'],
-                     data['after']['salary'],
+                    WHERE store_id = %s"""
+            values = (data['after']['store_name'],
                      data['after']['account_number'],
                      data['after']['bank_code'],
-                     data['after']['email'],
                      data['after']['president_id'],
-                     data['after']['employee_id'])
+                     data['after']['store_id'])
         elif operation == 'd':  # Delete
-            sql = """DELETE FROM employee_sub WHERE employee_id = %s"""
-            values = (data['before']['employee_id'],)
+            sql = """DELETE FROM store WHERE store_id = %s"""
+            values = (data['before']['store_id'],)
         
         if sql and values:
             cursor.execute(sql, values)
-            logger.info(f"Employee table - Executed {operation} operation: {values}")
+            logger.info(f"Store table - Executed {operation} operation: {values}")
             return True
         else:
             logger.error(f"Unsupported operation: {operation}")
             return False
 
     except Exception as e:
-        logger.error(f"Error handling Employee change: {e}")
+        logger.error(f"Error handling Store change: {e}")
+        return False
+
+def handle_store_employee_changes(cursor, operation, data):
+    try:
+        sql = None
+        values = None
+
+        if operation == 'c':  # Insert
+            sql = """INSERT INTO store_employee 
+                    (se_id, store_id, email, name, salary, employment_type, 
+                     bank_code, account_number, payment_date) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            values = (data['after']['se_id'],
+                     data['after']['store_id'],
+                     data['after']['email'],
+                     data['after']['name'],
+                     data['after']['salary'],
+                     data['after']['employment_type'],
+                     data['after']['bank_code'],
+                     data['after']['account_number'],
+                     data['after']['payment_date'])
+        elif operation == 'u':  # Update
+            sql = """UPDATE store_employee 
+                    SET store_id = %s,
+                        email = %s,
+                        name = %s,
+                        salary = %s,
+                        employment_type = %s,
+                        bank_code = %s,
+                        account_number = %s,
+                        payment_date = %s
+                    WHERE se_id = %s"""
+            values = (data['after']['store_id'],
+                     data['after']['email'],
+                     data['after']['name'],
+                     data['after']['salary'],
+                     data['after']['employment_type'],
+                     data['after']['bank_code'],
+                     data['after']['account_number'],
+                     data['after']['payment_date'],
+                     data['after']['se_id'])
+        elif operation == 'd':  # Delete
+            sql = """DELETE FROM store_employee WHERE se_id = %s"""
+            values = (data['before']['se_id'],)
+        
+        if sql and values:
+            cursor.execute(sql, values)
+            logger.info(f"Store Employee table - Executed {operation} operation: {values}")
+            return True
+        else:
+            logger.error(f"Unsupported operation: {operation}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Error handling Store Employee change: {e}")
         return False
 
 def process_messages(topic, handler_func):
@@ -183,9 +224,10 @@ def main():
     logger.info("Starting sync service...")
 
     president_topic = 'mysql-president.member.president'
-    employee_topic = 'mysql-employee.member.employee'
+    store_topic = 'mysql-store.member.store'
+    store_employee_topic = 'mysql-store-employee.member.store_employee'
 
-    logger.info(f"Subscribing to topics: {president_topic} and {employee_topic}")
+    logger.info(f"Subscribing to topics: {president_topic}, {store_topic}, and {store_employee_topic}")
 
     try:
         temp_consumer = KafkaConsumer(
@@ -202,17 +244,24 @@ def main():
         args=(president_topic, handle_president_changes)
     )
     
-    employee_thread = threading.Thread(
+    store_thread = threading.Thread(
         target=process_messages,
-        args=(employee_topic, handle_employee_changes)
+        args=(store_topic, handle_store_changes)
+    )
+    
+    store_employee_thread = threading.Thread(
+        target=process_messages,
+        args=(store_employee_topic, handle_store_employee_changes)
     )
     
     president_thread.start()
-    employee_thread.start()
+    store_thread.start()
+    store_employee_thread.start()
     
     try:
         president_thread.join()
-        employee_thread.join()
+        store_thread.join()
+        store_employee_thread.join()
     except KeyboardInterrupt:
         logger.info("Shutting down...")
 
