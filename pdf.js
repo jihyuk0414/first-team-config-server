@@ -14,7 +14,7 @@ export default function PDFDownloadPage() {
             return;
         }
 
-        const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwYXlsb2FkIjoicDdSaTF3YTE5YUcrZEtSRGpwZlg1Zz09IiwiaWF0IjoxNzMxMDM2NzIzLCJleHAiOjE3Mzk2NzY3MjN9._ieJm9kPR0FZEy42zQMG9UE-X9jjmJnGclOckQbkQMA";
+        const token = "";
         
         try {
             console.log('요청 시작');
