@@ -17,6 +17,12 @@ spring:
     username: root
     password: 1234 # 코딩하는 사람 맞춰서 DB 아이디 및 비밀번호 변경
     driver-class-name: com.mysql.cj.jdbc.Driver
+  batch:
+    jdbc:
+      initialize-schema: always
+      table-prefix: BATCH_
+    job:
+      enabled: false
   jpa:
    show-sql: true
    properties:
