@@ -6,7 +6,6 @@ import time
 import logging
 import threading
 import base64
-import struct
 
 logging.basicConfig(
   level=logging.INFO,
