@@ -162,77 +162,99 @@ def handle_store_changes(cursor, operation, data):
         return False
     
 def handle_store_employee_changes(cursor, operation, data):
-   try:
-       sql = None
-       values = None
+    try:
+        sql = None
+        values = None
 
-       if operation == 'c':  # Insert
-           sql = """INSERT INTO store_employee 
-                   (se_id, store_id, email, name, salary, employment_type, 
-                    bank_code, account_number, payment_date) 
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-           try:
-               salary = float(data['after']['salary'])
-           except (ValueError, TypeError):
-               logger.error(f"Invalid salary value: {data['after']['salary']}")
-               return False
+        # birth_date 변환 함수 추가
+        def convert_to_date(days):
+            from datetime import datetime, timedelta
+            base_date = datetime(1900, 1, 1)  # 기준일
+            try:
+                return (base_date + timedelta(days=int(days))).strftime('%Y-%m-%d')
+            except (ValueError, TypeError):
+                logger.error(f"Invalid birth_date value: {days}")
+                return None
 
-           logger.info(f"Received data: {data['after']}")  # 데이터 확인용 로그
+        if operation == 'c':  # Insert
+            sql = """INSERT INTO store_employee 
+                    (se_id, store_id, email, name, salary, employment_type, 
+                     bank_code, account_number, payment_date, birth_date, phone_number)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            try:
+                salary = int(data['after']['salary'])
+                birth_date = convert_to_date(data['after']['birth_date'])  # 날짜 변환
+                if not birth_date:
+                    return False
+            except (ValueError, TypeError):
+                logger.error(f"Invalid salary value: {data['after']['salary']}")
+                return False
+
+            logger.info(f"Received data: {data['after']}")
                
-           values = (data['after']['se_id'],
-                    data['after']['store_id'],
-                    data['after']['email'],
-                    data['after']['name'],
-                    salary,  # 형변환된 값 사용
-                    data['after']['employment_type'],
-                    data['after']['bank_code'],
-                    data['after']['account_number'],
-                    data['after']['payment_date'])
+            values = (data['after']['se_id'],
+                     data['after']['store_id'],
+                     data['after']['email'],
+                     data['after']['name'],
+                     salary,
+                     data['after']['employment_type'],
+                     data['after']['bank_code'],
+                     data['after']['account_number'],
+                     data['after']['payment_date'],
+                     birth_date,                         # 변환된 날짜 사용
+                     data['after']['phone_number'])
 
-       elif operation == 'u':  # Update
-           sql = """UPDATE store_employee 
-                   SET store_id = %s,
-                       email = %s,
-                       name = %s,
-                       salary = %s,
-                       employment_type = %s,
-                       bank_code = %s,
-                       account_number = %s,
-                       payment_date = %s
-                   WHERE se_id = %s"""
-           try:
-               salary = float(data['after']['salary'])
-           except (ValueError, TypeError):
-               logger.error(f"Invalid salary value: {data['after']['salary']}")
-               return False
+        elif operation == 'u':  # Update
+            sql = """UPDATE store_employee 
+                    SET store_id = %s,
+                        email = %s,
+                        name = %s,
+                        salary = %s,
+                        employment_type = %s,
+                        bank_code = %s,
+                        account_number = %s,
+                        payment_date = %s,
+                        birth_date = %s,
+                        phone_number = %s
+                    WHERE se_id = %s"""
+            try:
+                salary = int(data['after']['salary'])
+                birth_date = convert_to_date(data['after']['birth_date'])  # 날짜 변환
+                if not birth_date:
+                    return False
+            except (ValueError, TypeError):
+                logger.error(f"Invalid salary value: {data['after']['salary']}")
+                return False
 
-           logger.info(f"Received data: {data['after']}")  # 데이터 확인용 로그
+            logger.info(f"Received data: {data['after']}")
 
-           values = (data['after']['store_id'],
-                    data['after']['email'],
-                    data['after']['name'],
-                    salary,  # 형변환된 값 사용
-                    data['after']['employment_type'],
-                    data['after']['bank_code'],
-                    data['after']['account_number'],
-                    data['after']['payment_date'],
-                    data['after']['se_id'])
+            values = (data['after']['store_id'],
+                     data['after']['email'],
+                     data['after']['name'],
+                     salary,
+                     data['after']['employment_type'],
+                     data['after']['bank_code'],
+                     data['after']['account_number'],
+                     data['after']['payment_date'],
+                     birth_date,                         # 변환된 날짜 사용
+                     data['after']['phone_number'],
+                     data['after']['se_id'])
 
-       elif operation == 'd':  # Delete
-           sql = """DELETE FROM store_employee WHERE se_id = %s"""
-           values = (data['before']['se_id'],)
-       
-       if sql and values:
-           cursor.execute(sql, values)
-           logger.info(f"Store Employee table - Executed {operation} operation: {values}")
-           return True
-       else:
-           logger.error(f"Unsupported operation: {operation}")
-           return False
+        elif operation == 'd':  # Delete
+            sql = """DELETE FROM store_employee WHERE se_id = %s"""
+            values = (data['before']['se_id'],)
+        
+        if sql and values:
+            cursor.execute(sql, values)
+            logger.info(f"Store Employee table - Executed {operation} operation: {values}")
+            return True
+        else:
+            logger.error(f"Unsupported operation: {operation}")
+            return False
 
-   except Exception as e:
-       logger.error(f"Error handling Store Employee change: {e}")
-       return False        
+    except Exception as e:
+        logger.error(f"Error handling Store Employee change: {e}")
+        return False
 
 def process_messages(topic, handler_func):
   while True:
