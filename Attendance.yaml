@@ -6,16 +6,23 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka
-spring:
+spring: 
   application:
     name: Attendance
   cloud:
+    gcp:
+      enabled: true
+      storage:
+        bucket: fisa_final_project
+        project-id: woven-coral-441407-d3
+        credentials:
+          location: ${GCP_KEY}
     config:
       enabled: false
   datasource:
     url: jdbc:mysql://localhost:3306/attendance
     username: root
-    password: 1234 # 코딩하는 사람 맞춰서 DB 아이디 및 비밀번호 변경
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
   batch:
     jdbc:
@@ -24,29 +31,6 @@ spring:
     job:
       enabled: false
   jpa:
-   show-sql: true
-   properties:
-     hibernate:
-       format_sql: true
-       show_sql: true
-
-# Debezium 설정
-debezium:
-  source:
-    db:
-      name: source_db
-      host: localhost
-      port: 3306
-      username: root
-      password: 1234
-      database: member 
-      table: ceo 
-  target:
-    db:
-      name: target_db
-      host: localhost
-      port: 3306
-      username: root
-      password: 1234
-      database: attendance 
-      table: ceo 
+    show-sql: true
+    hibernate:
+      ddl-auto: none
