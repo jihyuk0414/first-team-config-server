@@ -48,18 +48,21 @@ def handle_president_changes(cursor, operation, data):
 
        if operation == 'c':  # Insert
            sql = """INSERT INTO president 
-                   (president_id, name, email) 
-                   VALUES (%s, %s, %s)"""
+                   (president_id, name, email, terms_accept) 
+                   VALUES (%s, %s, %s, %s)"""
            values = (data['after']['president_id'],
                     data['after']['name'], 
-                    data['after']['email'])
+                    data['after']['email'],
+                    data['after']['terms_accept'])  # 새로운 필드 추가
        elif operation == 'u':  # Update
            sql = """UPDATE president 
                    SET name = %s,
-                       email = %s
+                       email = %s,
+                       terms_accept = %s
                    WHERE president_id = %s"""
            values = (data['after']['name'],
                     data['after']['email'],
+                    data['after']['terms_accept'],  # 새로운 필드 추가
                     data['after']['president_id'])
        elif operation == 'd':  # Delete
            sql = """DELETE FROM president WHERE president_id = %s"""
@@ -76,6 +79,7 @@ def handle_president_changes(cursor, operation, data):
    except Exception as e:
        logger.error(f"Error handling President change: {e}")
        return False
+
 def handle_store_changes(cursor, operation, data):
     try:
         sql = None
